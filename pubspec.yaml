@@ -1,0 +1,17 @@
+name: bounds_grid_view
+description: A Flutter bounds grid view.
+
+version: 0.0.1
+
+author: Kota Takeuchi <info@tktkktkt.net>
+
+environment:
+  sdk: ">=2.0.0-dev.68.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
