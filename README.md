@@ -1,0 +1,2 @@
+# BoundsGridView
+GridViewをhtmlのcolspanやrowspanのように領域をまたげるようしたもです。
