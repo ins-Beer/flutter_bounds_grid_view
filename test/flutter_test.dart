@@ -6,8 +6,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import 'package:bounds_grid_view/bounds_grid_view.dart';
+import 'dart:math' as math;
+import 'package:flutter_bounds_grid_view/flutter_bounds_grid_view.dart';
 
 void main() {
   testWidgets('Counter increments smoke test', (WidgetTester tester) async {
@@ -25,384 +25,99 @@ class MyApp extends StatelessWidget {
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new CalcRootWidget(),
+      home: new FirstPageWidget(),
     );
   }
 }
 
-enum OPERATOR_IDENTIFIER {
-  PLUS,
-  SUBTRACT,
-  MULTIPLY,
-  DIVIDE,
-  NONE,
-}
-
-class CalcRootWidget extends StatefulWidget {
-  CalcRootWidget({Key key}) : super(key: key);
+class FirstPageWidget extends StatefulWidget {
+  FirstPageWidget({Key key}) : super(key: key);
 
   @override
-  _CalcRootWidgetState createState() => new _CalcRootWidgetState();
+  _FirstPageWidgetState createState() => new _FirstPageWidgetState();
 }
 
-class _CalcRootWidgetState extends State<CalcRootWidget> {
-  double currentNumber = 0.0;
-  double bufferNumber = 0.0;
-  String displayNumber = "0";
-  OPERATOR_IDENTIFIER mode = OPERATOR_IDENTIFIER.NONE;
-  bool nextClear = false;
-  bool point = false;
-
-  int _point = 1;
-
-  void operandClicked(int number) {
-    setState(() {
-      if (nextClear) {
-        this.currentNumber = 0.0;
-        this.nextClear = false;
-      }
-      if (number == 10 || number == 100) {
-        if (this.point) {
-          this._point *= number;
-        } else {
-          this.currentNumber *= number;
-        }
-      } else {
-        if (this.point) {
-          this._point *= 10;
-          this.currentNumber += number / this._point;
-        } else {
-          this.currentNumber *= 10;
-          this.currentNumber += number;
-        }
-      }
-
-      if (this._point == 1) {
-        this.displayNumber = this.currentNumber.floor().toString();
-      } else {
-        this.displayNumber = this.currentNumber.toString();
-      }
-    });
-  }
-
-  void operatorClicked(OPERATOR_IDENTIFIER identifier) {
-    setState(() {
-      this.nextClear = true;
-      this.point = false;
-      this._point = 1;
-      switch (this.mode) {
-        case OPERATOR_IDENTIFIER.PLUS:
-          this.currentNumber = this.currentNumber + this.bufferNumber;
-          break;
-        case OPERATOR_IDENTIFIER.SUBTRACT:
-          this.currentNumber = this.currentNumber - this.bufferNumber;
-          break;
-        case OPERATOR_IDENTIFIER.MULTIPLY:
-          this.currentNumber = this.currentNumber * this.bufferNumber;
-          break;
-        case OPERATOR_IDENTIFIER.DIVIDE:
-          this.currentNumber = this.bufferNumber / this.currentNumber;
-          break;
-        case OPERATOR_IDENTIFIER.NONE:
-          break;
-      }
-      this.mode = identifier;
-      this.bufferNumber = currentNumber;
-
-      if (this.currentNumber % 1 == 0) {
-        this.displayNumber = this.currentNumber.floor().toString();
-      } else {
-        this.displayNumber = this.currentNumber.toString();
-      }
-    });
-  }
-
-  void allClear() {
-    setState(() {
-      this.nextClear = false;
-      this.currentNumber = 0.0;
-      this.bufferNumber = 0.0;
-      this._point = 1;
-      this.point = false;
-      this.displayNumber = "0";
-    });
-  }
-
-  void currentClear() {
-    setState(() {
-      this.currentNumber = 0.0;
-      this._point = 1;
-      this.point = false;
-      this.displayNumber = "0";
-    });
-  }
+class _FirstPageWidgetState extends State<FirstPageWidget> {
 
   Widget generateBody(BuildContext context) {
-    GridBoundsList boundsList =
-        GridBoundsList([
-      GridBounds(0, 0, 1, 4),
-      GridBounds(1, 0, 1, 1),
-      GridBounds(1, 1, 1, 1),
-      GridBounds(1, 2, 1, 1),
-      GridBounds(1, 3, 1, 1),
-      GridBounds(2, 0, 1, 1),
-      GridBounds(2, 1, 1, 1),
-      GridBounds(2, 2, 1, 1),
-      GridBounds(2, 3, 1, 1),
-      GridBounds(3, 0, 1, 1),
-      GridBounds(3, 1, 1, 1),
-      GridBounds(3, 2, 1, 1),
-      GridBounds(3, 3, 1, 1),
-      GridBounds(4, 0, 1, 1),
-      GridBounds(4, 1, 1, 2),
-      GridBounds(4, 3, 2, 1),
-      GridBounds(5, 0, 1, 1),
-      GridBounds(5, 1, 1, 1),
-      GridBounds(5, 2, 1, 1),
-    ]);
+    List<GridBounds> boundsList = [];
+    List<Widget> children = [];
 
-    EdgeInsets padding = EdgeInsets.fromLTRB(4.0, 4.0, 4.0, 4.0);
-    List<Widget> children = [
-      Container(
-        child: Text(displayNumber,
-          style: TextStyle(
-            fontSize: 50.0,
-            textBaseline: TextBaseline.alphabetic,
-          ),
-          textAlign: TextAlign.right,
-        ),
-        padding: padding,
-        margin: padding,
-        alignment: Alignment.centerRight,
-        color: Colors.grey[300],
-      ),
-      Padding(
-        child: OperandButton(
-          number: 7,
-          caption: "7",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 8,
-          caption: "8",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 9,
-          caption: "9",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperatorButton(
-          identifier: OPERATOR_IDENTIFIER.DIVIDE,
-          caption: "/",
-          onPressed: this.operatorClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 4,
-          caption: "4",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 5,
-          caption: "5",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 6,
-          caption: "6",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperatorButton(
-          identifier: OPERATOR_IDENTIFIER.MULTIPLY,
-          caption: "x",
-          onPressed: this.operatorClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 1,
-          caption: "1",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 2,
-          caption: "2",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 3,
-          caption: "3",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperatorButton(
-          identifier: OPERATOR_IDENTIFIER.SUBTRACT,
-          caption: "-",
-          onPressed: this.operatorClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 10,
-          caption: "0",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperandButton(
-          number: 100,
-          caption: "00",
-          onPressed: this.operandClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperatorButton(
-          identifier: OPERATOR_IDENTIFIER.PLUS,
-          caption: "+",
-          onPressed: this.operatorClicked,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: FlatButton(
-          child: new Text(
-            "AC",
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 40.0,
-                color: Color.fromARGB(255, 255, 0, 0)),
-          ),
-          color: Color.fromARGB(255, 45, 120, 220),
-          onPressed: this.allClear,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: FlatButton(
-          child: new Text(
-            "C",
-            style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 40.0,
-                color: Color.fromARGB(255, 255, 255, 255)),
-          ),
-          color: Color.fromARGB(255, 45, 120, 220),
-          onPressed: this.currentClear,
-        ),
-        padding: padding,
-      ),
-      Padding(
-        child: OperatorButton(
-          identifier: OPERATOR_IDENTIFIER.NONE,
-          caption: "=",
-          onPressed: this.operatorClicked,
-        ),
-        padding: padding,
-      ),
-    ];
+    // 列数
+    const int CROSS_AXIS_COUNT = 10;
+    // 行数
+    const int MAIN_AXIS_COUNT = 100;
 
-    return BoundsGridView(
-      boundsList: boundsList,
-      children: children,
-      childAspectRatio: 1.0,
+    // Widgetの最大サイズ
+    const int MAX_EXTENT = 3;
+
+    // 領域マップの2次元配列 初期値は-1で埋める
+    List<List<int>> indexMap = [];
+    for (int i = 0; i < MAIN_AXIS_COUNT; i++) {
+      indexMap.add(List<int>.filled(CROSS_AXIS_COUNT, -1));
+    }
+    
+    // アイテム数のカウント
+    int itemCount = 0;
+    
+    // 二次元配列を1セルずつみていく
+    for (int y = 0; y < MAIN_AXIS_COUNT; y++) {
+      for (int x = 0; x < CROSS_AXIS_COUNT; x++) {
+        // -1じゃなかったらすでにマッピングされているのでスルー
+        if (indexMap[y][x] >= 0) continue;
+        // 今の座標で下に広がれる最大値 <= 3 を取得。
+        final int maxMainAxisExtent = math.min(MAX_EXTENT, MAIN_AXIS_COUNT - y);
+        // 今の座標で右に広がれる最大値 <= 3 を取得。
+        final int maxCrossAxisExtent = math.min(MAX_EXTENT, CROSS_AXIS_COUNT - x);
+        // この座標の領域の高さをランダムで生成
+        int mainAxisExtent = math.Random().nextInt(maxMainAxisExtent) + 1;
+        // この座標の領域の幅をランダムで生成
+        int crossAxisExtent = math.Random().nextInt(maxCrossAxisExtent) + 1;
+        
+        // 領域マップにIndexを書き込む
+        for (int yy = 0; yy < mainAxisExtent; yy++) {
+          for (int xx = 0; xx < crossAxisExtent; xx++) {
+            if (indexMap[y + yy][x + xx] >= 0) {
+              crossAxisExtent = xx;
+              continue;
+            }
+            indexMap[y + yy][x + xx] = itemCount;
+          }
+        }
+        // 座標と領域の大きさからGridBoundsを生成し配列へ
+        boundsList.add(GridBounds(y, x, mainAxisExtent, crossAxisExtent));
+        // Indexを表示するテキスト（背景青）
+        children.add(Container(
+          child: Text(itemCount.toString(),style: TextStyle(fontSize: 16.0, color: Colors.white),),
+          alignment: Alignment.center,
+          color: Color.fromARGB(255, 45, 120, 220),
+        ));
+        // Indexのインクリメント
+        itemCount++;
+      }
+    }
+    // GridBoundsListの生成
+    GridBoundsList gridBoundsList = GridBoundsList(boundsList);
+    // gridBoundsListのsortを使用して並べ替えたWidget配列を取得
+    List<Widget> sortedChildren = gridBoundsList.sort(children);
+
+    // 例のDelegateを使ってGridViewを生成
+    return GridView(
+      gridDelegate: SliverGridDelegateWithBounds(
+        boundsList: gridBoundsList,
+        childAspectRatio: 1.0,
+        mainAxisSpacing: 1.0,
+        crossAxisSpacing: 1.0,
+      ),
+      children: sortedChildren,
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(title: new Text("Flutterで作る電卓")),
+      appBar: new AppBar(title: new Text("BoundsGridViewTest")),
       body: this.generateBody(context),
     );
   }
-}
-
-@immutable
-class OperandButton extends FlatButton {
-  OperandButton({
-    @required this.caption,
-    @required this.number,
-    @required Function onPressed,
-  }) :  assert(caption != null && caption != ""),
-        assert(number != null),
-        super(
-          child: Text(
-            caption,
-            textDirection: TextDirection.ltr,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 40.0,
-              color: Color.fromARGB(255, 255, 255, 255)
-            ),
-          ),
-          onPressed: (){
-            onPressed(number);
-          },
-        );
-
-  final String caption;
-  final int number;
-  final Color color = Color.fromARGB(255, 45, 120, 220);
-}
-
-@immutable
-class OperatorButton extends FlatButton {
-  OperatorButton({
-    @required this.caption,
-    @required this.identifier,
-    @required Function onPressed,
-    ShapeBorder shape,
-  }) :  assert(caption != null && caption != ""),
-        assert(identifier != null),
-        super(
-        child: Text(
-          caption,
-          textDirection: TextDirection.ltr,
-          style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 40.0,
-              color: Color.fromARGB(255, 255, 255, 255)
-          ),
-        ),
-        onPressed: () {
-          onPressed(identifier);
-        },
-        shape: shape,
-      );
-  final String caption;
-  final OPERATOR_IDENTIFIER identifier;
-  final Color color = Color.fromARGB(255, 45, 120, 220);
 }
