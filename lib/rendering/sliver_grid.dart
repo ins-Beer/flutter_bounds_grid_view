@@ -96,7 +96,6 @@ class GridBoundsList {
   List<Widget> sort(List<Widget> children) {
     assert(boundsList != null);
     assert(children.length <= boundsList.length);
-
     List<int> indexes = [];
     for (int i = 0, len = children.length; i < len; i++) {
       indexes.add(i);
@@ -104,7 +103,6 @@ class GridBoundsList {
     indexes.sort((a, b) => _compare(boundsList[a], boundsList[b]));
     List<Widget> sortedChildren = [];
     indexes.forEach((index)=> sortedChildren.add(children[index]));
-    
     List<GridBounds> _boundsList = [];
     indexes.forEach((index)=> _boundsList.add(boundsList[index]));
     boundsList = _boundsList;
